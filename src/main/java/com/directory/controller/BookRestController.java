@@ -7,10 +7,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import com.directory.model.dto.BookForm;
 import com.directory.model.dto.ErrorMessage;
 import com.directory.model.entity.Book;
+import com.directory.model.entity.Lesson;
 import com.directory.service.book.IBookService;
+import com.directory.service.lesson.ILessonService;
 
+import java.util.Iterator;
 import java.util.Optional;
 
 @RestController
@@ -19,6 +23,8 @@ import java.util.Optional;
 public class BookRestController {
     @Autowired
     private IBookService bookService;
+    @Autowired
+    private ILessonService lessonService;
 
     @GetMapping
     public ResponseEntity<?> getAllBooks() {
@@ -36,13 +42,16 @@ public class BookRestController {
         }
         return new ResponseEntity<>(bookOptional.get(), HttpStatus.OK);
     }
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+//    @PreAuthorize("hasRole('ROLE_ADMIN')")
     @PostMapping("/create")
-    public  ResponseEntity<?> createNewBook(@RequestBody Book book) {
-        Optional<Book> bookOptional = this.bookService.findBooksByName(book.getName());
-        if (bookOptional.isPresent()) {
-            return new ResponseEntity<>(new ErrorMessage("Sách đã tồn tại!"), HttpStatus.BAD_REQUEST);
-        }
-        return new ResponseEntity<>(this.bookService.save(book), HttpStatus.CREATED);
+    public  ResponseEntity<?> createNewBook(@RequestBody BookForm book) {
+       Book newBook = new Book();
+       newBook.setName(book.getName());
+       newBook.setAuthor(book.getAuthor());
+       this.bookService.save(newBook);
+       for (int i = 0; i < book.getTotalLesson(); i++) {
+    	   this.lessonService.save(new Lesson("" + (i + 1), newBook));
+	}
+        return new ResponseEntity<>(new ErrorMessage("Thêm sách thành công!"), HttpStatus.CREATED);
     }
 }

@@ -43,6 +43,23 @@ public class Lesson {
 		public void setBook(Book book) {
 			this.book = book;
 		}
+
+		public Lesson(String name, Book book) {
+			super();
+			this.name = name;
+			this.book = book;
+		}
+
+		public Lesson() {
+			super();
+		}
+
+		public Lesson(Long id, String name, Book book) {
+			super();
+			this.id = id;
+			this.name = name;
+			this.book = book;
+		}
 	    
 	    
 }
